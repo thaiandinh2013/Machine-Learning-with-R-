@@ -1,0 +1,66 @@
+# Iris, a built in data set in R, contains infomation about flower samples. 
+#There are 3 types of flowers in the data set. For each kind length and width of the sepal and petal are recorded. 
+#The task at hand is to build decision trees to forecast the type of flower based on the infomation about the length and width
+ of their sepal or petal 
+
+
+iris_data <- iris
+str(iris_data)
+summary(iris_data)
+
+#Ploting the data
+library(ggplot2)
+qplot(Petal.Length, Petal.Width, data=iris_data, colour=Species, size=3)
+qplot(Sepal.Length, Sepal.Width, data=iris_data, colour=Species, size=3)
+
+par(mfrow=c(2,2))
+boxplot( Petal.Length ~ Species, data=iris_data,col="red")
+title("Petal Length")
+boxplot( Petal.Width ~ Species, data=iris_data,col="green")
+title("Petal Width")
+boxplot( Sepal.Length ~ Species, data=iris_data,col="blue")
+title("Sepal Length")
+boxplot( Sepal.Width ~ Species, data=iris_data,col="maroon")
+title("Sepal Width")
+
+
+library(psych)
+pairs.panels(iris_data)
+
+#Modeling & Prediction
+#Split training and testing datasets in the ratio of 70-30
+
+library(caret)
+inTrain <- createDataPartition(y=iris_data$Species ,p=0.7,list=FALSE)
+training <- iris_data[inTrain,]
+testing <- iris_data[-inTrai
+table(training$Species); table(testing$Species)
+
+#Build model based on the training data
+library(C50)
+model <- C5.0(training[-5], training$Species)
+summary(model)
+
+
+#predict the class for each sample in the test data then compare the prediction with the actual
+value of the class.
+
+library(caret)
+predicted <- predict(model, testing)
+table(predicted)
+confusionMatrix(predicted, testing$Species)
+
+##As can be seen the model performed fairly well and Sepal.Length and Sepal.Width have very high
+correlations.As such, we are also interested to know how the model will perform when Sepal Length or Sepal Width is taken out
+
+#get only Sepal Length, width and species
+sub_data <- iris_data[, c(1,2,5)]
+summary(sub_data)
+inTrain <- createDataPartition(y=sub_data$Species ,p=0.7,list=FALSE)
+training <- sub_data[inTrain,]
+testing <- sub_data[-inTrain,]
+model <- C5.0(training[-3], training$Species)
+summary(model)
+
+predicted <- predict(model, testing)
+confusionMatrix(predicted, testing$Species)
