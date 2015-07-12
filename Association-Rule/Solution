@@ -1,0 +1,30 @@
+#The dataset1 contains infomation about 1000 cases of accident 
+#The task is to find which accident conditions frequently occur together.
+
+accident_data <- read.csv("accidents.csv")
+str(accident_data)
+
+#Data Transformation: In order to apply the Association Rule , the data must be converted into basket form first 
+
+colnames <- names(accident_data)
+basket_str <- ""
+for ( row in 1:nrow(accident_data)) {
+if ( row != 1) {
+basket_str <- paste0(basket_str, "\n")}
+basket_str <- paste0(basket_str, row,",")
+for (col in 2:length(colnames)) {
+if ( col != 2) {
+basket_str <- paste0(basket_str, ",")}
+basket_str <- paste0(basket_str, colnames[col],"=",accident_data[row,col])}}
+
+write(basket_str,"accidents_basket.csv")
+
+#Exploratory Data Analysis
+library(arules)
+accidents <- read.transactions("accidents_basket.csv",sep=",")
+summary(accidents)
+itemFrequencyPlot(accidents,topN=10,type="absolute",col="darkgreen", horiz=TRUE)
+
+#Modeling & Prediction
+rules <- apriori(accidents, parameter=list(supp=0.1, conf=0.3))
+inspect(rules[1:40])
