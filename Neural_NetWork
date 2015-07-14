@@ -1,0 +1,28 @@
+##This code lines is based on the builtin data set infert in R
+##Load the necessary data into R
+library(neuralnet)
+library(caret)
+head(infert)
+
+##Building the model 
+nn<-neuralnet(case~age+parity+induced+spontaneous,data=infert,
+hidden=2,err.fct="ce",linear.output=FALSE)
+
+##
+nn$net.result[[1]]
+nn$weights
+
+##Visualize the model 
+plot(nn)
+
+##Calculate the error of the prediction
+nn1<-ifelse(nn$net.result[[1]]>0.5,1,0)
+misClassification<-mean(infert$case!=nn1)
+
+##Compare the actual and predicted result
+realVsPredict<-cbind(infert$case,nn1)
+
+
+##Using Backpropagation method
+nn.bp<-neuralnet(case~age+parity+induced+spontaneous,data=infert,hidden=2,
+learningrate=0.01,algorithm="backprop",err.fct="ce",linear.output=FALSE)
